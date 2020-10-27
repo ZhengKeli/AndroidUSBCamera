@@ -81,19 +81,5 @@
                 android:layout_weight="2" />
     </LinearLayout>
 
-    <androidx.appcompat.widget.SwitchCompat
-            android:id="@+id/switch_rec_voice"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignLeft="@+id/llayout_brightness"
-            android:layout_alignStart="@+id/llayout_brightness"
-            android:layout_below="@+id/toolbar"
-            android:layout_marginLeft="13dp"
-            android:layout_marginStart="13dp"
-            android:layout_marginTop="27dp"
-            android:checked="false"
-            android:text="closeVoice"
-            android:textColor="@color/colorWhite" />
-
 
 </RelativeLayout>

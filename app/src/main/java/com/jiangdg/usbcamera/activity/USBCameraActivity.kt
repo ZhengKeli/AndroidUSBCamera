@@ -45,7 +45,6 @@ class USBCameraActivity : AppCompatActivity(), CameraDialogParent, CameraViewInt
         mToolbar = findViewById(R.id.toolbar)
         mSeekBrightness = findViewById(R.id.seekbar_brightness)
         mSeekContrast = findViewById(R.id.seekbar_contrast)
-        mSwitchVoice = findViewById(R.id.switch_rec_voice)
         initView()
 
         // step.1 initialize UVCCameraHelper
@@ -176,7 +175,6 @@ class USBCameraActivity : AppCompatActivity(), CameraDialogParent, CameraViewInt
                     val params = RecordParams()
                     params.recordPath = videoPath
                     params.recordDuration = 0 // auto divide saved,default 0 means not divided
-                    params.isVoiceClose = mSwitchVoice.isChecked // is close voice
                     params.isSupportOverlay = true // overlay only support armeabi-v7a & arm64-v8a
                     mCameraHelper.startPusher(params, object : OnEncodeResultListener {
                         override fun onEncodeResult(data: ByteArray, offset: Int, length: Int, timestamp: Long, type: Int) {
@@ -195,12 +193,10 @@ class USBCameraActivity : AppCompatActivity(), CameraDialogParent, CameraViewInt
                     // if you only want to push stream,please call like this
                     // mCameraHelper.startPusher(listener);
                     showShortMsg("start record...")
-                    mSwitchVoice.isEnabled = false
                 } else {
                     FileUtils.releaseFile()
                     mCameraHelper.stopPusher()
                     showShortMsg("stop record...")
-                    mSwitchVoice.isEnabled = true
                 }
             }
             R.id.menu_resolution -> {

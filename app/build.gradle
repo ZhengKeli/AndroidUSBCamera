@@ -1,13 +1,15 @@
 apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
 
 android {
-    compileSdkVersion rootProject.ext.versionCompiler
+    compileSdkVersion 30
+    buildToolsVersion "30.0.2"
+
     defaultConfig {
         applicationId "com.jiangdg.usbcamera"
-        minSdkVersion rootProject.ext.minSdkVersion
-        targetSdkVersion rootProject.ext.versionTarget
-        versionCode rootProject.ext.versionCode
-        versionName rootProject.ext.versionNameString
+        minSdkVersion 21
+        targetSdkVersion 27
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes {
@@ -16,20 +18,10 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
-    // solving com.android.tools.r8.CompilationFailedException: Compilation failed to complete
-    compileOptions {
-        sourceCompatibility rootProject.ext.javaSourceCompatibility
-        targetCompatibility rootProject.ext.javaTargetCompatibility
-    }
 }
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-
-    implementation "androidx.appcompat:appcompat:${androidXVersion}"
-
-    implementation 'com.jakewharton:butterknife:10.2.0'
-    annotationProcessor 'com.jakewharton:butterknife-compiler:10.2.0'
-
+    implementation 'androidx.appcompat:appcompat:1.2.0'
     implementation project(':libusbcamera')
 }

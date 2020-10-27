@@ -1,14 +1,12 @@
 apply plugin: 'com.android.library'
-apply plugin: 'com.github.dcendents.android-maven'
-group='com.github.jiangdongguo'
 
 android {
-    compileSdkVersion rootProject.ext.versionCompiler
+    compileSdkVersion 30
+    buildToolsVersion "30.0.2"
+
     defaultConfig {
-        minSdkVersion rootProject.ext.minSdkVersion
-        targetSdkVersion rootProject.ext.versionTarget
-        versionCode 2
-        versionName rootProject.ext.versionNameString
+        minSdkVersion 21
+        targetSdkVersion 27
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
 
         // "armeabi-v7a" can adapter most of the devices
@@ -21,11 +19,6 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
-    }
-    // solving com.android.tools.r8.CompilationFailedException: Compilation failed to complete
-    compileOptions {
-        sourceCompatibility rootProject.ext.javaSourceCompatibility
-        targetCompatibility rootProject.ext.javaTargetCompatibility
     }
 }
 

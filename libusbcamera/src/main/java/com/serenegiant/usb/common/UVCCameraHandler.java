@@ -134,7 +134,7 @@ public class UVCCameraHandler extends AbstractUVCCameraHandler {
 	}
 
 	@Override
-	public void startCameraFoucs() {
-		super.startCameraFoucs();
+	public void startCameraFocus() {
+		super.startCameraFocus();
 	}
 }

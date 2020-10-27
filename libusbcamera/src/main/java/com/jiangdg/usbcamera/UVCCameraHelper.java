@@ -331,9 +331,9 @@ public class UVCCameraHelper {
         }
     }
 
-    public void startCameraFoucs() {
+    public void startCameraFocus() {
         if (mCameraHandler != null) {
-            mCameraHandler.startCameraFoucs();
+            mCameraHandler.startCameraFocus();
         }
     }
 

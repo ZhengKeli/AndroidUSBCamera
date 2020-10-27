@@ -680,7 +680,7 @@ public abstract class AbstractUVCCameraHandler extends Handler {
                 isSupportOverlay = params.isSupportOverlay();
                 if(isSupportOverlay) {
                     // init overlay engine
-                    TxtOverlay.getInstance().init(mWidth, mHeight);
+                    TxtOverlay.init(mWidth, mHeight);
                 }
                 videoPath = params.getRecordPath();
                 File file = new File(videoPath);
@@ -710,8 +710,8 @@ public abstract class AbstractUVCCameraHandler extends Handler {
             // 停止音视频编码线程
             stopAudioRecord();
             stopVideoRecord();
-            if(isSupportOverlay)
-                TxtOverlay.getInstance().release();
+            if (isSupportOverlay)
+                TxtOverlay.release();
 //			// 停止捕获视频数据
 //			if (mUVCCamera != null) {
 //				mUVCCamera.stopCapture();

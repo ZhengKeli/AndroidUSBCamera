@@ -33,6 +33,6 @@ android {
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
 
-    implementation "androidx.appcompat:appcompat:${androidXVersion}"
-    api "com.serenegiant:common:${commonLibVersion}"
+    implementation 'androidx.appcompat:appcompat:1.2.0'
+    api project(':common')
 }

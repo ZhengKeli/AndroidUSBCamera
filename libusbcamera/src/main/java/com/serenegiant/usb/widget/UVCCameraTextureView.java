@@ -229,8 +229,8 @@ public class UVCCameraTextureView extends AspectRatioTextureView    // API >= 14
         private boolean mIsActive = true;
         private final FpsCounter mFpsCounter;
 
-        public static final RenderHandler createHandler(final FpsCounter counter,
-                                                        final SurfaceTexture surface, final int width, final int height) {
+        public static RenderHandler createHandler(final FpsCounter counter,
+                                                  final SurfaceTexture surface, final int width, final int height) {
 
             final RenderThread thread = new RenderThread(counter, surface, width, height);
             thread.start();

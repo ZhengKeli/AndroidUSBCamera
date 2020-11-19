@@ -33,9 +33,6 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public final class USBMonitor {
 
-    private static final boolean DEBUG = true;    // TODO set false on production
-    private static final String TAG = "USBMonitor";
-
     private static final String ACTION_USB_PERMISSION_BASE = "com.serenegiant.USB_PERMISSION.";
     private final String ACTION_USB_PERMISSION = ACTION_USB_PERMISSION_BASE + hashCode();
 
@@ -103,15 +100,13 @@ public final class USBMonitor {
     }
 
     public USBMonitor(final Context context, final OnDeviceConnectListener listener) {
-        if (DEBUG) Log.v(TAG, "USBMonitor:Constructor");
         if (listener == null)
             throw new IllegalArgumentException("OnDeviceConnectListener should not null.");
         mWeakContext = new WeakReference<Context>(context);
         mUsbManager = (UsbManager) context.getSystemService(Context.USB_SERVICE);
         mOnDeviceConnectListener = listener;
-        mAsyncHandler = HandlerThreadHandler.createHandler(TAG);
+        mAsyncHandler = HandlerThreadHandler.createHandler();
         destroyed = false;
-        if (DEBUG) Log.v(TAG, "USBMonitor:mUsbManager=" + mUsbManager);
     }
 
     /**
@@ -119,7 +114,6 @@ public final class USBMonitor {
      * never reuse again
      */
     public void destroy() {
-        if (DEBUG) Log.i(TAG, "destroy:");
         unregister();
         if (!destroyed) {
             destroyed = true;
@@ -134,13 +128,13 @@ public final class USBMonitor {
                     }
                 }
             } catch (final Exception e) {
-                Log.e(TAG, "destroy:", e);
+                e.printStackTrace();
             }
             mCtrlBlocks.clear();
             try {
                 mAsyncHandler.getLooper().quit();
             } catch (final Exception e) {
-                Log.e(TAG, "destroy:", e);
+                e.printStackTrace();
             }
         }
     }
@@ -153,7 +147,6 @@ public final class USBMonitor {
     public synchronized void register() throws IllegalStateException {
         if (destroyed) throw new IllegalStateException("already destroyed");
         if (mPermissionIntent == null) {
-            if (DEBUG) Log.i(TAG, "register:");
             final Context context = mWeakContext.get();
             if (context != null) {
                 mPermissionIntent = PendingIntent.getBroadcast(context, 0, new Intent(ACTION_USB_PERMISSION), 0);
@@ -188,7 +181,7 @@ public final class USBMonitor {
                     context.unregisterReceiver(mUsbReceiver);
                 }
             } catch (final Exception e) {
-                Log.w(TAG, e);
+                e.printStackTrace();
             }
             mPermissionIntent = null;
         }
@@ -378,32 +371,6 @@ public final class USBMonitor {
     }
 
     /**
-     * output device list to LogCat
-     */
-    public final void dumpDevices() {
-        final HashMap<String, UsbDevice> list = mUsbManager.getDeviceList();
-        if (list != null) {
-            final Set<String> keys = list.keySet();
-            if (keys != null && keys.size() > 0) {
-                final StringBuilder sb = new StringBuilder();
-                for (final String key : keys) {
-                    final UsbDevice device = list.get(key);
-                    final int num_interface = device != null ? device.getInterfaceCount() : 0;
-                    sb.setLength(0);
-                    for (int i = 0; i < num_interface; i++) {
-                        sb.append(String.format(Locale.US, "interface%d:%s", i, device.getInterface(i).toString()));
-                    }
-                    Log.i(TAG, "key=" + key + ":" + device + ":" + sb.toString());
-                }
-            } else {
-                Log.i(TAG, "no device");
-            }
-        } else {
-            Log.i(TAG, "no device");
-        }
-    }
-
-    /**
      * return whether the specific Usb device has permission
      *
      * @param device
@@ -456,7 +423,7 @@ public final class USBMonitor {
                         mUsbManager.requestPermission(device, mPermissionIntent);
                     } catch (final Exception e) {
                         // Android5.1.xのGALAXY系でandroid.permission.sec.MDM_APP_MGMTという意味不明の例外生成するみたい
-                        Log.w(TAG, e);
+                        e.printStackTrace();
                         processCancel(device);
                         result = true;
                     }
@@ -587,7 +554,6 @@ public final class USBMonitor {
         mAsyncHandler.post(new Runnable() {
             @Override
             public void run() {
-                if (DEBUG) Log.v(TAG, "processConnect:device=" + device);
                 UsbControlBlock ctrlBlock;
                 final boolean createNew;
                 ctrlBlock = mCtrlBlocks.get(device);
@@ -607,7 +573,6 @@ public final class USBMonitor {
 
     private final void processCancel(final UsbDevice device) {
         if (destroyed) return;
-        if (DEBUG) Log.v(TAG, "processCancel:");
         updatePermission(device, false);
         if (mOnDeviceConnectListener != null) {
             mAsyncHandler.post(new Runnable() {
@@ -621,7 +586,6 @@ public final class USBMonitor {
 
     private final void processAttach(final UsbDevice device) {
         if (destroyed) return;
-        if (DEBUG) Log.v(TAG, "processAttach:");
         if (mOnDeviceConnectListener != null) {
             mAsyncHandler.post(new Runnable() {
                 @Override
@@ -634,7 +598,6 @@ public final class USBMonitor {
 
     private final void processDettach(final UsbDevice device) {
         if (destroyed) return;
-        if (DEBUG) Log.v(TAG, "processDettach:");
         if (mOnDeviceConnectListener != null) {
             mAsyncHandler.post(new Runnable() {
                 @Override
@@ -1024,7 +987,6 @@ public final class USBMonitor {
          * @param device
          */
         private UsbControlBlock(final USBMonitor monitor, final UsbDevice device) {
-            if (DEBUG) Log.i(TAG, "UsbControlBlock:constructor");
             mWeakMonitor = new WeakReference<USBMonitor>(monitor);
             mWeakDevice = new WeakReference<UsbDevice>(device);
             mConnection = monitor.mUsbManager.openDevice(device);
@@ -1039,15 +1001,6 @@ public final class USBMonitor {
             }
             mBusNum = busnum;
             mDevNum = devnum;
-//			if (DEBUG) {
-            if (mConnection != null) {
-                final int desc = mConnection.getFileDescriptor();
-                final byte[] rawDesc = mConnection.getRawDescriptors();
-                Log.i(TAG, String.format(Locale.US, "name=%s,desc=%d,busnum=%d,devnum=%d,rawDesc=", name, desc, busnum, devnum) + rawDesc);
-            } else {
-                Log.e(TAG, "could not connect to device " + name);
-            }
-//			}
         }
 
         /**
@@ -1370,8 +1323,6 @@ public final class USBMonitor {
          * This also close interfaces if they are opened in Java side
          */
         public synchronized void close() {
-            if (DEBUG) Log.i(TAG, "UsbControlBlock#close:");
-
             if (mConnection != null) {
                 final int n = mInterfaces.size();
                 for (int i = 0; i < n; i++) {

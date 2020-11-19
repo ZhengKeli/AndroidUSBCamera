@@ -6,18 +6,13 @@ import android.hardware.usb.UsbDevice;
 import android.os.Environment;
 
 import com.jiangdg.libusbcamera.R;
-
-import org.easydarwin.sw.TxtOverlay;
-
 import com.serenegiant.usb.DeviceFilter;
 import com.serenegiant.usb.Size;
 import com.serenegiant.usb.USBMonitor;
 import com.serenegiant.usb.UVCCamera;
 import com.serenegiant.usb.common.AbstractUVCCameraHandler;
 import com.serenegiant.usb.common.UVCCameraHandler;
-import com.serenegiant.usb.encoder.RecordParams;
 import com.serenegiant.usb.widget.CameraViewInterface;
-
 
 import java.io.File;
 import java.util.List;
@@ -198,20 +193,12 @@ public class UVCCameraHelper {
         }
     }
 
-    public boolean checkSupportFlag(final int flag) {
-        return mCameraHandler != null && mCameraHandler.checkSupportFlag(flag);
-    }
-
     public int getModelValue(final int flag) {
         return mCameraHandler != null ? mCameraHandler.getValue(flag) : 0;
     }
 
     public int setModelValue(final int flag, final int value) {
         return mCameraHandler != null ? mCameraHandler.setValue(flag, value) : 0;
-    }
-
-    public int resetModelValue(final int flag) {
-        return mCameraHandler != null ? mCameraHandler.resetValue(flag) : 0;
     }
 
     public void requestPermission(int index) {
@@ -254,34 +241,6 @@ public class UVCCameraHelper {
             }
             mCameraHandler.captureStill(savePath, listener);
         }
-    }
-
-    public void startPusher(AbstractUVCCameraHandler.OnEncodeResultListener listener) {
-        if (mCameraHandler != null && !isPushing()) {
-            mCameraHandler.startRecording(null, listener);
-        }
-    }
-
-    public void startPusher(RecordParams params, AbstractUVCCameraHandler.OnEncodeResultListener listener) {
-        if (mCameraHandler != null && !isPushing()) {
-            if (params.isSupportOverlay()) {
-                TxtOverlay.install(mActivity.getApplicationContext());
-            }
-            mCameraHandler.startRecording(params, listener);
-        }
-    }
-
-    public void stopPusher() {
-        if (mCameraHandler != null && isPushing()) {
-            mCameraHandler.stopRecording();
-        }
-    }
-
-    public boolean isPushing() {
-        if (mCameraHandler != null) {
-            return mCameraHandler.isRecording();
-        }
-        return false;
     }
 
     public boolean isCameraOpened() {

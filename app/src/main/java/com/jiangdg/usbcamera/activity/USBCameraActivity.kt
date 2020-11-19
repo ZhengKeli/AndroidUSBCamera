@@ -7,7 +7,6 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.text.TextUtils
-import android.util.Log
 import android.view.*
 import android.widget.AdapterView.OnItemClickListener
 import android.widget.ArrayAdapter
@@ -17,35 +16,54 @@ import android.widget.SeekBar.OnSeekBarChangeListener
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.SwitchCompat
-import androidx.appcompat.widget.Toolbar
 import com.jiangdg.usbcamera.R
 import com.jiangdg.usbcamera.UVCCameraHelper
 import com.jiangdg.usbcamera.UVCCameraHelper.OnMyDevConnectListener
 import com.jiangdg.usbcamera.application.MyApplication
 import com.jiangdg.usbcamera.utils.FileUtils
-import com.serenegiant.usb.CameraDialog.CameraDialogParent
-import com.serenegiant.usb.USBMonitor
-import com.serenegiant.usb.common.AbstractUVCCameraHandler.*
-import com.serenegiant.usb.encoder.RecordParams
+import com.serenegiant.usb.common.AbstractUVCCameraHandler.OnCaptureListener
 import com.serenegiant.usb.widget.CameraViewInterface
 
-class USBCameraActivity : AppCompatActivity(), CameraDialogParent, CameraViewInterface.Callback {
-    lateinit var mToolbar: Toolbar
+class USBCameraActivity : AppCompatActivity(), CameraViewInterface.Callback {
     lateinit var mSeekBrightness: SeekBar
     lateinit var mSeekContrast: SeekBar
-    lateinit var mSwitchVoice: SwitchCompat
+
     private lateinit var mCameraHelper: UVCCameraHelper
     private lateinit var mUVCCameraView: CameraViewInterface
+
     private var isRequest = false
     private var isPreview = false
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_usbcamera)
-        mToolbar = findViewById(R.id.toolbar)
+        setSupportActionBar(findViewById(R.id.toolbar))
+
         mSeekBrightness = findViewById(R.id.seekbar_brightness)
         mSeekContrast = findViewById(R.id.seekbar_contrast)
-        initView()
+
+        mSeekBrightness.max = 100
+        mSeekBrightness.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
+                if (mCameraHelper.isCameraOpened) {
+                    mCameraHelper.setModelValue(UVCCameraHelper.MODE_BRIGHTNESS, progress)
+                }
+            }
+
+            override fun onStartTrackingTouch(seekBar: SeekBar) {}
+            override fun onStopTrackingTouch(seekBar: SeekBar) {}
+        })
+
+        mSeekContrast.max = 100
+        mSeekContrast.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
+                if (mCameraHelper.isCameraOpened) {
+                    mCameraHelper.setModelValue(UVCCameraHelper.MODE_CONTRAST, progress)
+                }
+            }
+
+            override fun onStartTrackingTouch(seekBar: SeekBar) {}
+            override fun onStopTrackingTouch(seekBar: SeekBar) {}
+        })
 
         // step.1 initialize UVCCameraHelper
         mUVCCameraView = findViewById(R.id.camera_view)
@@ -88,8 +106,8 @@ class USBCameraActivity : AppCompatActivity(), CameraDialogParent, CameraViewInt
                         }
                         Looper.prepare()
                         if (mCameraHelper.isCameraOpened) {
-                            mSeekBrightness.setProgress(mCameraHelper.getModelValue(UVCCameraHelper.MODE_BRIGHTNESS))
-                            mSeekContrast.setProgress(mCameraHelper.getModelValue(UVCCameraHelper.MODE_CONTRAST))
+                            mSeekBrightness.progress = mCameraHelper.getModelValue(UVCCameraHelper.MODE_BRIGHTNESS)
+                            mSeekContrast.progress = mCameraHelper.getModelValue(UVCCameraHelper.MODE_CONTRAST)
                         }
                         Looper.loop()
                     }.start()
@@ -99,33 +117,6 @@ class USBCameraActivity : AppCompatActivity(), CameraDialogParent, CameraViewInt
             override fun onDisConnectDev(device: UsbDevice) {
                 showShortMsg("disconnecting")
             }
-        })
-        mCameraHelper.setOnPreviewFrameListener { nv21Yuv -> Log.d(TAG, "onPreviewResult: " + nv21Yuv.size) }
-    }
-
-    private fun initView() {
-        setSupportActionBar(mToolbar)
-        mSeekBrightness.max = 100
-        mSeekBrightness.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
-            override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
-                if (mCameraHelper.isCameraOpened) {
-                    mCameraHelper.setModelValue(UVCCameraHelper.MODE_BRIGHTNESS, progress)
-                }
-            }
-
-            override fun onStartTrackingTouch(seekBar: SeekBar) {}
-            override fun onStopTrackingTouch(seekBar: SeekBar) {}
-        })
-        mSeekContrast.max = 100
-        mSeekContrast.setOnSeekBarChangeListener(object : OnSeekBarChangeListener {
-            override fun onProgressChanged(seekBar: SeekBar, progress: Int, fromUser: Boolean) {
-                if (mCameraHelper.isCameraOpened) {
-                    mCameraHelper.setModelValue(UVCCameraHelper.MODE_CONTRAST, progress)
-                }
-            }
-
-            override fun onStartTrackingTouch(seekBar: SeekBar) {}
-            override fun onStopTrackingTouch(seekBar: SeekBar) {}
         })
     }
 
@@ -160,44 +151,6 @@ class USBCameraActivity : AppCompatActivity(), CameraDialogParent, CameraViewInt
                     if (TextUtils.isEmpty(path)) return@OnCaptureListener
                     Handler(mainLooper).post { Toast.makeText(activity, "save path:$path", Toast.LENGTH_SHORT).show() }
                 })
-            }
-            R.id.menu_recording -> {
-                if (!mCameraHelper.isCameraOpened) {
-                    showShortMsg("sorry,camera open failed")
-                    return super.onOptionsItemSelected(item)
-                }
-                if (!mCameraHelper.isPushing) {
-                    val videoPath = (UVCCameraHelper.ROOT_PATH + MyApplication.DIRECTORY_NAME + "/videos/" + System.currentTimeMillis()
-                            + UVCCameraHelper.SUFFIX_MP4)
-
-//                    FileUtils.createfile(FileUtils.ROOT_PATH + "test666.h264");
-                    // if you want to record,please create RecordParams like this
-                    val params = RecordParams()
-                    params.recordPath = videoPath
-                    params.recordDuration = 0 // auto divide saved,default 0 means not divided
-                    params.isSupportOverlay = true // overlay only support armeabi-v7a & arm64-v8a
-                    mCameraHelper.startPusher(params, object : OnEncodeResultListener {
-                        override fun onEncodeResult(data: ByteArray, offset: Int, length: Int, timestamp: Long, type: Int) {
-                            // type = 1,h264 video stream
-                            if (type == 1) {
-                                FileUtils.putFileStream(data, offset, length)
-                            }
-                            // type = 0,aac audio stream
-                        }
-
-                        override fun onRecordResult(videoPath: String) {
-                            if (TextUtils.isEmpty(videoPath)) return
-                            Handler(mainLooper).post { Toast.makeText(this@USBCameraActivity, "save videoPath:$videoPath", Toast.LENGTH_SHORT).show() }
-                        }
-                    })
-                    // if you only want to push stream,please call like this
-                    // mCameraHelper.startPusher(listener);
-                    showShortMsg("start record...")
-                } else {
-                    FileUtils.releaseFile()
-                    mCameraHelper.stopPusher()
-                    showShortMsg("stop record...")
-                }
             }
             R.id.menu_resolution -> {
                 if (!mCameraHelper.isCameraOpened) {
@@ -255,19 +208,6 @@ class USBCameraActivity : AppCompatActivity(), CameraDialogParent, CameraViewInt
         Toast.makeText(this, msg, Toast.LENGTH_SHORT).show()
     }
 
-    override fun getUSBMonitor(): USBMonitor {
-        return mCameraHelper.usbMonitor
-    }
-
-    override fun onDialogResult(canceled: Boolean) {
-        if (canceled) {
-            showShortMsg("取消操作")
-        }
-    }
-
-    val isCameraOpened: Boolean
-        get() = mCameraHelper.isCameraOpened
-
     override fun onSurfaceCreated(view: CameraViewInterface, surface: Surface) {
         if (!isPreview && mCameraHelper.isCameraOpened) {
             mCameraHelper.startPreview(mUVCCameraView)
@@ -283,7 +223,4 @@ class USBCameraActivity : AppCompatActivity(), CameraDialogParent, CameraViewInt
         }
     }
 
-    companion object {
-        private const val TAG = "Debug"
-    }
 }

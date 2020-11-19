@@ -1,85 +1,79 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="#ff000000"
         tools:context=".activity.USBCameraActivity"
-        tools:ignore="MergeRootFrame">
+        tools:ignore="MergeRootFrame"
+        android:id="@+id/relativeLayout">
 
     <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
             android:background="@color/colorPrimary"
             android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
             app:navigationIcon="@null"
-            app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
+            app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
-    <FrameLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_below="@id/toolbar">
 
-        <com.serenegiant.usb.widget.UVCCameraTextureView
-                android:id="@+id/camera_view"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center" />
-    </FrameLayout>
+    <com.serenegiant.usb.widget.UVCCameraTextureView
+            android:id="@+id/camera_view"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintTop_toBottomOf="@+id/toolbar"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent" />
 
-    <LinearLayout
-            android:id="@+id/llayout_contrast"
-            android:layout_width="match_parent"
+    <TextView
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:layout_marginBottom="10dp"
-            android:layout_marginLeft="10dp"
-            android:layout_marginRight="10dp"
-            android:orientation="horizontal">
+            android:paddingBottom="7dp"
+            android:paddingTop="7dp"
+            android:text="对比度(contrast)"
+            android:textColor="@color/colorWhite"
+            android:id="@+id/textView5"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            android:layout_marginStart="16dp" />
 
-        <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:paddingBottom="7dp"
-                android:paddingTop="7dp"
-                android:text="对比度(contrast)"
-                android:textColor="@color/colorWhite" />
-
-        <SeekBar
-                android:id="@+id/seekbar_contrast"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="2" />
-    </LinearLayout>
-
-    <LinearLayout
-            android:id="@+id/llayout_brightness"
-            android:layout_width="match_parent"
+    <SeekBar
+            android:id="@+id/seekbar_contrast"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_above="@id/llayout_contrast"
-            android:layout_marginBottom="10dp"
-            android:layout_marginLeft="10dp"
-            android:layout_marginRight="10dp"
-            android:orientation="horizontal">
-
-        <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:paddingBottom="7dp"
-                android:paddingTop="7dp"
-                android:text="亮度(brightness)"
-                android:textColor="@color/colorWhite" />
-
-        <SeekBar
-                android:id="@+id/seekbar_brightness"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight="2" />
-    </LinearLayout>
+            app:layout_constraintStart_toEndOf="@+id/textView5"
+            app:layout_constraintBottom_toBottomOf="@+id/textView5"
+            app:layout_constraintTop_toTopOf="@+id/textView5"
+            android:layout_marginStart="8dp"
+            app:layout_constraintEnd_toEndOf="parent" />
 
 
-</RelativeLayout>
+    <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingBottom="7dp"
+            android:paddingTop="7dp"
+            android:text="亮度(brightness)"
+            android:textColor="@color/colorWhite"
+            android:id="@+id/textView6"
+            app:layout_constraintBottom_toTopOf="@+id/textView5"
+            app:layout_constraintStart_toStartOf="@+id/textView5" />
+
+    <SeekBar
+            android:id="@+id/seekbar_brightness"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toEndOf="@+id/textView6"
+            app:layout_constraintBottom_toTopOf="@+id/textView5"
+            app:layout_constraintTop_toTopOf="@+id/textView6"
+            android:layout_marginStart="8dp"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

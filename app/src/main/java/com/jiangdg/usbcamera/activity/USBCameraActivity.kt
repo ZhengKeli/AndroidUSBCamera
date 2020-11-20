@@ -1,6 +1,7 @@
 package com.jiangdg.usbcamera.activity
 
 import android.app.Activity
+import android.app.Application
 import android.app.Dialog
 import android.hardware.usb.UsbDevice
 import android.os.Bundle
@@ -19,7 +20,6 @@ import androidx.appcompat.app.AppCompatActivity
 import com.jiangdg.usbcamera.R
 import com.jiangdg.usbcamera.UVCCameraHelper
 import com.jiangdg.usbcamera.UVCCameraHelper.OnMyDevConnectListener
-import com.jiangdg.usbcamera.application.MyApplication
 import com.jiangdg.usbcamera.utils.FileUtils
 import com.serenegiant.usb.common.AbstractUVCCameraHandler.OnCaptureListener
 import com.serenegiant.usb.widget.CameraViewInterface
@@ -144,8 +144,7 @@ class USBCameraActivity : AppCompatActivity(), CameraViewInterface.Callback {
                     showShortMsg("sorry,camera open failed")
                     return super.onOptionsItemSelected(item)
                 }
-                val picPath = (UVCCameraHelper.ROOT_PATH + MyApplication.DIRECTORY_NAME + "/images/"
-                        + System.currentTimeMillis() + UVCCameraHelper.SUFFIX_JPEG)
+                val picPath = filesDir.resolve("images").resolve(System.currentTimeMillis().toString() + UVCCameraHelper.SUFFIX_JPEG).path
                 val activity: Activity = this
                 mCameraHelper.capturePicture(picPath, OnCaptureListener { path ->
                     if (TextUtils.isEmpty(path)) return@OnCaptureListener
